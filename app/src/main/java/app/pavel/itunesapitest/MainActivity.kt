@@ -1,11 +1,11 @@
 package app.pavel.itunesapitest
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.AdapterView
-import android.widget.ListView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.widget.SearchView
 import okhttp3.*
 import org.json.JSONArray
@@ -13,7 +13,9 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 
-class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class MainActivity : AppCompatActivity(),
+    SearchView.OnQueryTextListener,
+    AdapterView.OnItemClickListener {
 
     companion object {
         var albumArrayList = ArrayList<Album>()
@@ -22,7 +24,8 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     private var list: ListView? = null
     private var adapter: ListViewAdapter? = null
     private var editSearch: SearchView? = null
-    private var movieList: Array<Album>? = null
+    private var resultCountTextView: TextView? = null
+    private var progressBar: ProgressBar? = null
 
     private var client = OkHttpClient()
 
@@ -30,47 +33,37 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        movieList = arrayOf(
-            Album(albumTitle = "Album title 1",
-                artistName = "Artist 1",
-                artwork = "",
-                genre = "Rock",
-                date = "1999-01-10"),
-            Album(albumTitle = "Album title 2",
-                artistName = "Artist 2",
-                artwork = "",
-                genre = "Hip Hop",
-                date = "1999-01-10")
-        )
-
-        list = findViewById(R.id.listView)
-
         albumArrayList = ArrayList()
 
-        for (i in movieList!!.indices) {
-            val albumTitle = movieList!![i]
-            //movieList!![i].getAlbumTitle()
-            albumArrayList.add(albumTitle)
-        }
+        adapter = ListViewAdapter(this)
 
-        adapter = ListViewAdapter(this, albumArrayList)
+        resultCountTextView = findViewById(R.id.resultCount)
+        showResultsCount(albumArrayList.size.toString())
 
+        list = this.findViewById(R.id.listView)
         list!!.adapter = adapter
+        list!!.onItemClickListener = this
+
+        progressBar = findViewById(R.id.progressBar)
+        progressBar!!.visibility = View.GONE
 
         editSearch = findViewById(R.id.searchView)
         editSearch!!.setOnQueryTextListener(this)
+    }
 
-        list!!.onItemClickListener = AdapterView.OnItemClickListener {
-            parent, view, position, id ->
-                Toast.makeText(
-                        this@MainActivity,
-                        albumArrayList[position].albumTitle,
-                        Toast.LENGTH_SHORT).show()
-        }
+    override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        Toast.makeText(
+            this@MainActivity,
+            albumArrayList[position].albumTitle,
+            Toast.LENGTH_SHORT).show()
+
+        val intent = Intent(this, AlbumActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        // adapter!!.filter(query)
+        adapter!!.filter(query)
+
         Log.d("LOG Submit", query)
 
         searchQuery(query)
@@ -80,17 +73,40 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     override fun onQueryTextChange(newText: String): Boolean {
         adapter!!.filter(newText)
-        // Log.d("LOG", newText)
+
+        showResultsCount(albumArrayList.size.toString())
+
         return false
     }
 
-    private fun searchQuery(query: String) {
-        var query = query.replace(" ", "+")
-        query = "https://itunes.apple.com/search?term=" +
-                query + "&entity=album&attribute=albumTerm"
-        Log.d("LOG query", query)
+    //////////////////////////
+    //////////////////////////
+
+    private fun Boolean.setProgressBarVisibilityFun() {
+        when(this) {
+            true -> progressBar!!.visibility = View.VISIBLE
+            false -> progressBar!!.visibility = View.GONE
+        }
+    }
+
+    private fun showResultsCount(count: String) {
+        val text = Constants.resultCountText + count
+        resultCountTextView!!.text = text
+    }
+
+    private fun searchQuery(searchQuery: String) {
+        // setProgressBarVisibilityFun(true)
+        // progressBar!!.visibility = View.VISIBLE
+
+        var query = searchQuery.replace(Constants.spaceChar, Constants.plusChar)
+
+        query = Constants.albumQueryURLPart1 + query + Constants.albumQueryURLPart2
+
+        // Log.d("LOG query", query)
 
         val request = Request.Builder().url(query).build()
+
+        var resultsCount = "0"
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -99,52 +115,57 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
             override fun onResponse(call: Call, response: Response) {
                 try {
-                    var strResponse = response.body!!.string()
+                    val strResponse = response.body!!.string()
                     val jsonObject: JSONObject = JSONObject(strResponse)
-                    var jsonArray: JSONArray = jsonObject.getJSONArray("results")
+                    val jsonArray: JSONArray = jsonObject.getJSONArray(Constants.results)
 
-                    var resultCount = jsonObject.getString("resultCount")
+                    resultsCount = jsonObject.getString(Constants.resultCount)
 
-                    //showResultsCount(resultCount)
-                    // Log.d("LOG", resultCount)
+                    val size: Int = jsonArray.length()
 
-                    var i: Int = 0
-                    var size: Int = jsonArray.length()
-
-                    for (i in 0..size - 1) {
-                        // Log.d("LOG", jsonArray[i].toString())
+                    for (i in 0 until size) {
 
                         val albumInfo: JSONObject = jsonArray[i] as JSONObject
 
-                        var album: Album = Album()
+                        val album: Album = Album()
 
-                        album.albumTitle = albumInfo.getString("collectionName")
-                        album.artistName = albumInfo.getString("artistName")
-                        album.date = albumInfo.getString("releaseDate")
-                        album.genre = albumInfo.getString("primaryGenreName")
-                        album.artwork = albumInfo.getString("artworkUrl100")
+                        album.albumTitle = albumInfo.getString(Constants.collectionName)
+                        album.artistName = albumInfo.getString(Constants.artistName)
+                        album.date = albumInfo.getString(Constants.releaseDate).substring(0, 4)
+                        album.genre = albumInfo.getString(Constants.primaryGenreName)
+                        album.artwork = albumInfo.getString(Constants.artworkUrl100)
 
                         albumArrayList.add(album)
-                        // Log.d("LOG", album.albumTitle)
+
+                        //Log.d("LOG", "collection Id: " + albumInfo.getString("collectionId"))
                     }
 
+                    sortAlbumListAlphabetically()
+
                     runOnUiThread {
+                        showResultsCount(resultsCount)
+
                         val adapter: ListViewAdapter
-                        adapter = ListViewAdapter(applicationContext, albumArrayList)
+                        adapter = ListViewAdapter(applicationContext)
                         list?.adapter = adapter
+
+                        adapter.notifyDataSetChanged()
                     }
 
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-
         })
+
+        //setProgressBarVisibilityFun(false)
+        //progressBar!!.visibility = View.GONE
     }
 
-    fun showResultsCount(count: String) {
-        Toast.makeText(this@MainActivity,
-            "Results founded: $count",
-            Toast.LENGTH_SHORT).show()
+    private fun sortAlbumListAlphabetically() {
+        albumArrayList.sortBy {
+            it.albumTitle
+        }
     }
+
 }
