@@ -22,12 +22,10 @@ class MainActivity : AppCompatActivity(),
     }
 
     private var list: ListView? = null
-    private var adapter: ListViewAdapter? = null
+    private var adapterAlbum: AlbumListViewAdapter? = null
     private var editSearch: SearchView? = null
     private var resultCountTextView: TextView? = null
     private var progressBar: ProgressBar? = null
-
-    private var client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,14 +33,14 @@ class MainActivity : AppCompatActivity(),
 
         albumArrayList = ArrayList()
 
-        adapter = ListViewAdapter(this)
+        adapterAlbum = AlbumListViewAdapter(this)
+
+        list = this.findViewById(R.id.listView)
+        list!!.adapter = adapterAlbum
+        list!!.onItemClickListener = this
 
         resultCountTextView = findViewById(R.id.resultCount)
         showResultsCount(albumArrayList.size.toString())
-
-        list = this.findViewById(R.id.listView)
-        list!!.adapter = adapter
-        list!!.onItemClickListener = this
 
         progressBar = findViewById(R.id.progressBar)
         progressBar!!.visibility = View.GONE
@@ -57,22 +55,28 @@ class MainActivity : AppCompatActivity(),
             albumArrayList[position].albumTitle,
             Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, AlbumActivity::class.java)
+        val intent = Intent(this, SongActivity::class.java)
+        intent.putExtra(Constants.collectionId, albumArrayList[position].collectionId)
+        intent.putExtra(Constants.collectionName, albumArrayList[position].albumTitle)
+        intent.putExtra(Constants.artistName, albumArrayList[position].artistName)
+        intent.putExtra(Constants.primaryGenreName, albumArrayList[position].genre)
         startActivity(intent)
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        adapter!!.filter(query)
+        adapterAlbum!!.filter(query)
 
         Log.d("LOG Submit", query)
 
         searchQuery(query)
 
+        true.setProgressBarVisibilityFun()
+
         return false
     }
 
     override fun onQueryTextChange(newText: String): Boolean {
-        adapter!!.filter(newText)
+        adapterAlbum!!.filter(newText)
 
         showResultsCount(albumArrayList.size.toString())
 
@@ -95,22 +99,28 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun searchQuery(searchQuery: String) {
-        // setProgressBarVisibilityFun(true)
-        // progressBar!!.visibility = View.VISIBLE
-
         var query = searchQuery.replace(Constants.spaceChar, Constants.plusChar)
-
         query = Constants.albumQueryURLPart1 + query + Constants.albumQueryURLPart2
-
-        // Log.d("LOG query", query)
-
-        val request = Request.Builder().url(query).build()
 
         var resultsCount = "0"
 
+        val client = OkHttpClient()
+
+        val request = Request.Builder().url(query).build()
+
         client.newCall(request).enqueue(object : Callback {
+
             override fun onFailure(call: Call, e: IOException) {
+
                 Log.d("LOG", "Fail to load")
+
+                runOnUiThread {
+                    false.setProgressBarVisibilityFun()
+
+                    Toast.makeText(this@MainActivity,
+                        Constants.failToLoadText,
+                        Toast.LENGTH_SHORT).show()
+                }
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -127,17 +137,16 @@ class MainActivity : AppCompatActivity(),
 
                         val albumInfo: JSONObject = jsonArray[i] as JSONObject
 
-                        val album: Album = Album()
+                        val album = Album()
 
                         album.albumTitle = albumInfo.getString(Constants.collectionName)
                         album.artistName = albumInfo.getString(Constants.artistName)
                         album.date = albumInfo.getString(Constants.releaseDate).substring(0, 4)
                         album.genre = albumInfo.getString(Constants.primaryGenreName)
                         album.artwork = albumInfo.getString(Constants.artworkUrl100)
+                        album.collectionId = albumInfo.getString(Constants.collectionId)
 
                         albumArrayList.add(album)
-
-                        //Log.d("LOG", "collection Id: " + albumInfo.getString("collectionId"))
                     }
 
                     sortAlbumListAlphabetically()
@@ -145,21 +154,21 @@ class MainActivity : AppCompatActivity(),
                     runOnUiThread {
                         showResultsCount(resultsCount)
 
-                        val adapter: ListViewAdapter
-                        adapter = ListViewAdapter(applicationContext)
-                        list?.adapter = adapter
+                        false.setProgressBarVisibilityFun()
 
-                        adapter.notifyDataSetChanged()
+                        val adapterAlbum: AlbumListViewAdapter = AlbumListViewAdapter(applicationContext)
+                        list?.adapter = adapterAlbum
+
+                        adapterAlbum.notifyDataSetChanged()
                     }
 
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+
             }
         })
 
-        //setProgressBarVisibilityFun(false)
-        //progressBar!!.visibility = View.GONE
     }
 
     private fun sortAlbumListAlphabetically() {

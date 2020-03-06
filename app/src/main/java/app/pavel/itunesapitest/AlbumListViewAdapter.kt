@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide
 import java.util.Locale
 import java.util.ArrayList
 
-class ListViewAdapter(context: Context) : BaseAdapter() {
+class AlbumListViewAdapter(context: Context) : BaseAdapter() {
 
     private var inflater: LayoutInflater = LayoutInflater.from(context)
     private var arrayList: ArrayList<Album> = ArrayList()

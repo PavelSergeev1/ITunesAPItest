@@ -1,10 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AlbumActivity">
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/item_padding"
+    android:paddingStart="@dimen/item_padding"
+    android:paddingRight="@dimen/item_padding"
+    android:paddingEnd="@dimen/item_padding"
+    tools:context=".SongActivity">
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBarAlbum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyle"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/albumTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:paddingTop="@dimen/item_padding"
+        android:paddingBottom="@dimen/item_padding"
+        tools:text="Album title"/>
+
+    <TextView
+        android:id="@+id/artistName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/albumTitle"
+        android:textSize="20sp"
+        android:textColor="@android:color/holo_purple"
+        tools:text="Artist name"/>
+
+    <TextView
+        android:id="@+id/primaryGenreName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/artistName"
+        android:textSize="16sp"
+        android:textColor="@android:color/darker_gray"
+        tools:text="primaryGenreName"/>
+
+    <ListView
+        android:id="@+id/songContainer"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/item_padding"
+        android:paddingBottom="@dimen/item_padding"
+        android:layout_below="@id/primaryGenreName"/>
+
+    <RadioGroup
+        android:id="@+id/priceInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/songContainer"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/price"
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/priceData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/item_padding"
+            android:paddingStart="@dimen/item_padding"
+            android:paddingRight="@dimen/item_padding"
+            android:paddingEnd="@dimen/item_padding"
+            android:textColor="@android:color/darker_gray"
+            tools:text="9.99"/>
+        <TextView
+            android:id="@+id/currencyData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/darker_gray"
+            tools:text="USD"/>
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/releaseInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/priceInfo"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/released"
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/releaseDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/item_padding"
+            android:paddingStart="@dimen/item_padding"
+            android:paddingRight="@dimen/item_padding"
+            android:paddingEnd="@dimen/item_padding"
+            android:textColor="@android:color/darker_gray"
+            tools:text="2001 05 14"/>
+    </RadioGroup>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/releaseInfo"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/copyrightData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/darker_gray"
+            tools:text="2021 Music Records"/>
+    </RadioGroup>
+
+</RelativeLayout>
