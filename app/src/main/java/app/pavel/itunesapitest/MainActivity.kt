@@ -13,6 +13,10 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 
+/**
+ * Launch Activity for album search
+ */
+
 class MainActivity : AppCompatActivity(),
     SearchView.OnQueryTextListener,
     AdapterView.OnItemClickListener {
@@ -50,11 +54,6 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        Toast.makeText(
-            this@MainActivity,
-            albumArrayList[position].albumTitle,
-            Toast.LENGTH_SHORT).show()
-
         val intent = Intent(this, SongActivity::class.java)
         intent.putExtra(Constants.collectionId, albumArrayList[position].collectionId)
         intent.putExtra(Constants.collectionName, albumArrayList[position].albumTitle)
@@ -65,8 +64,6 @@ class MainActivity : AppCompatActivity(),
 
     override fun onQueryTextSubmit(query: String): Boolean {
         adapterAlbum!!.filter(query)
-
-        Log.d("LOG Submit", query)
 
         searchQuery(query)
 
@@ -105,7 +102,6 @@ class MainActivity : AppCompatActivity(),
         var resultsCount = "0"
 
         val client = OkHttpClient()
-
         val request = Request.Builder().url(query).build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -126,7 +122,7 @@ class MainActivity : AppCompatActivity(),
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val strResponse = response.body!!.string()
-                    val jsonObject: JSONObject = JSONObject(strResponse)
+                    val jsonObject = JSONObject(strResponse)
                     val jsonArray: JSONArray = jsonObject.getJSONArray(Constants.results)
 
                     resultsCount = jsonObject.getString(Constants.resultCount)
@@ -156,7 +152,7 @@ class MainActivity : AppCompatActivity(),
 
                         false.setProgressBarVisibilityFun()
 
-                        val adapterAlbum: AlbumListViewAdapter = AlbumListViewAdapter(applicationContext)
+                        val adapterAlbum = AlbumListViewAdapter(applicationContext)
                         list?.adapter = adapterAlbum
 
                         adapterAlbum.notifyDataSetChanged()

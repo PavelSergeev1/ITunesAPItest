@@ -14,6 +14,10 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.ArrayList
 
+/**
+ * Second Activity for detailed information about selected album
+ */
+
 class SongActivity : AppCompatActivity() {
 
     companion object {
@@ -26,8 +30,10 @@ class SongActivity : AppCompatActivity() {
     private var albumTitle: TextView? = null
     private var artistName: TextView? = null
     private var primaryGenreName: TextView? = null
+    private var price: TextView? = null
     private var priceData: TextView? = null
     private var currencyData: TextView? = null
+    private var released: TextView? = null
     private var releaseDateTextView: TextView? = null
     private var copyrightData: TextView? = null
     private var list: ListView? = null
@@ -59,8 +65,10 @@ class SongActivity : AppCompatActivity() {
         primaryGenreName = findViewById(R.id.primaryGenreName)
         primaryGenreName!!.text = intent.getStringExtra(Constants.primaryGenreName)
 
+        price = findViewById(R.id.price)
         priceData = findViewById(R.id.priceData)
         currencyData = findViewById(R.id.currencyData)
+        released = findViewById(R.id.released)
         releaseDateTextView = findViewById(R.id.releaseDate)
         copyrightData = findViewById(R.id.copyrightData)
 
@@ -81,6 +89,19 @@ class SongActivity : AppCompatActivity() {
             super.onOptionsItemSelected(item)
         }
     }
+
+    override fun onStop() {
+        super.onStop()
+
+        songArrayList.clear()
+
+        val listViewAdapter = SongListViewAdapter(applicationContext)
+        list?.adapter = listViewAdapter
+        listViewAdapter.notifyDataSetChanged()
+    }
+
+    //////////////////////////
+    //////////////////////////
 
     private fun searchQuery(searchQuery: String) {
         var query = searchQuery.replace(Constants.spaceChar, Constants.plusChar)
@@ -107,7 +128,7 @@ class SongActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 try {
                     val strResponse = response.body!!.string()
-                    val jsonObject: JSONObject = JSONObject(strResponse)
+                    val jsonObject = JSONObject(strResponse)
                     val jsonArray: JSONArray = jsonObject.getJSONArray(Constants.results)
 
                     val size: Int = jsonArray.length()
@@ -129,7 +150,7 @@ class SongActivity : AppCompatActivity() {
 
                         val songInfo: JSONObject = jsonArray[i] as JSONObject
 
-                        val song: Song = Song()
+                        val song = Song()
 
                         song.trackName = songInfo.getString(Constants.trackName)
                         song.trackExplicitness = songInfo.getString(Constants.trackExplicitness)
@@ -142,14 +163,16 @@ class SongActivity : AppCompatActivity() {
                     runOnUiThread {
                         false.setProgressBarVisibilityFun()
 
-                        val listViewAdapter: SongListViewAdapter = SongListViewAdapter(applicationContext)
+                        val listViewAdapter = SongListViewAdapter(applicationContext)
                         list?.adapter = listViewAdapter
 
                         listViewAdapter.notifyDataSetChanged()
 
+                        price!!.text = Constants.price
                         priceData!!.text = collectionPrice
                         currencyData!!.text = currency
 
+                        released!!.text = Constants.released
                         val date = releaseDate?.substring(0, 10)
                             ?.replace(Constants.minusChar, Constants.dotChar)
                         releaseDateTextView!!.text = date
@@ -170,14 +193,4 @@ class SongActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-
-        songArrayList.clear()
-
-        val listViewAdapter: SongListViewAdapter = SongListViewAdapter(applicationContext)
-        list?.adapter = listViewAdapter
-
-        listViewAdapter.notifyDataSetChanged()
-    }
 }

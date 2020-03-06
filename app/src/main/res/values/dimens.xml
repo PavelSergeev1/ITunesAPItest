@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="item_height">100dp</dimen>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="item_padding">10dp</dimen>
+    <dimen name="item_song_padding">15dp</dimen>
     <dimen name="item_album_height">120dp</dimen>
-    <dimen name="item_song_height">60dp</dimen>
+    <dimen name="item_song_height" tools:keep="@dimen/item_song_height">60dp</dimen>
+    <dimen name="track_number_width">20dp</dimen>
+    <dimen name="track_explicitness_layout">20dp</dimen>
 </resources>

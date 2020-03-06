@@ -6,8 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.LinearLayout
 import android.widget.TextView
 import java.util.ArrayList
+
+/**
+ * ListView Adapter for list of songs of selected album
+ */
 
 class SongListViewAdapter(context: Context) : BaseAdapter() {
 
@@ -21,6 +26,7 @@ class SongListViewAdapter(context: Context) : BaseAdapter() {
     inner class ViewHolder {
         internal var trackNumber: TextView? = null
         internal var trackName: TextView? = null
+        internal var trackExplicitnessLayout: LinearLayout? = null
         internal var trackExplicitness: TextView? = null
         internal var trackTimeMillis: TextView? = null
     }
@@ -34,6 +40,7 @@ class SongListViewAdapter(context: Context) : BaseAdapter() {
 
             holder.trackNumber = view.findViewById(R.id.trackNumber)
             holder.trackName = view.findViewById(R.id.trackName)
+            holder.trackExplicitnessLayout = view.findViewById(R.id.trackExplicitnessLayout)
             holder.trackExplicitness = view.findViewById(R.id.trackExplicitness)
             holder.trackTimeMillis = view.findViewById(R.id.trackTimeMillis)
 
@@ -50,7 +57,7 @@ class SongListViewAdapter(context: Context) : BaseAdapter() {
         if (SongActivity.songArrayList[position].trackExplicitness
             == Constants.explicit) {
             holder.trackExplicitness!!.text = Constants.letterE
-            holder.trackExplicitness!!.setBackgroundColor(Color.GRAY)
+            holder.trackExplicitnessLayout!!.setBackgroundColor(Color.GRAY)
             holder.trackExplicitness!!.setTextColor(Color.WHITE)
         }
 

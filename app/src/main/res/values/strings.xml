@@ -3,6 +3,4 @@
 
     <string name="query_hint">Album title</string>
     <string name="artwork_description">This is album\'s artwork</string>
-    <string name="released">Released:</string>
-    <string name="price">Price:</string>
 </resources>

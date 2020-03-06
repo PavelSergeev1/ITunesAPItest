@@ -13,6 +13,10 @@ import com.bumptech.glide.Glide
 import java.util.Locale
 import java.util.ArrayList
 
+/**
+ * ListView Adapter for list of albums for search query
+ */
+
 class AlbumListViewAdapter(context: Context) : BaseAdapter() {
 
     private var inflater: LayoutInflater = LayoutInflater.from(context)

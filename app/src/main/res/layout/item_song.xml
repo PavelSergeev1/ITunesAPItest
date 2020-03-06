@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/item_song_height"
+    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <TextView
         android:id="@+id/trackNumber"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/track_number_width"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_song_padding"
+        android:layout_marginBottom="@dimen/item_song_padding"
+        android:gravity="end"
         android:layout_gravity="center"
         android:textColor="@android:color/darker_gray"
         tools:text="1" />
@@ -17,35 +21,46 @@
         android:id="@+id/trackName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="300dp"
         android:layout_gravity="center"
         android:layout_marginStart="@dimen/item_padding"
         android:layout_marginLeft="@dimen/item_padding"
         android:textColor="@android:color/black"
         tools:text="Track name" />
 
-    <TextView
-        android:id="@+id/trackExplicitness"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+    <LinearLayout
+        android:id="@+id/trackExplicitnessLayout"
+        android:layout_width="@dimen/track_explicitness_layout"
+        android:layout_height="@dimen/track_explicitness_layout"
         android:layout_gravity="center"
+        android:gravity="center_horizontal|center_vertical"
         android:layout_marginStart="@dimen/item_padding"
         android:layout_marginLeft="@dimen/item_padding"
-        android:textAlignment="center"
-        tools:textColor="@android:color/white"
-        tools:background="@android:color/darker_gray"
-        tools:text="E" />
+        android:layout_marginEnd="@dimen/item_padding"
+        android:layout_marginRight="@dimen/item_padding"
+        tools:background="@color/gray">
+        <TextView
+            android:id="@+id/trackExplicitness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:textColor="@android:color/white"
+            tools:text="E" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="end">
-    <TextView
-        android:id="@+id/trackTimeMillis"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="@android:color/darker_gray"
-        tools:text="4:37" />
+        android:gravity="end">
+        <TextView
+            android:id="@+id/trackTimeMillis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/item_padding"
+            android:layout_marginRight="@dimen/item_padding"
+            android:textColor="@android:color/darker_gray"
+            tools:text="4:37" />
     </LinearLayout>
 
 </LinearLayout>
